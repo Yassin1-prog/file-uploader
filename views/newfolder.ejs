@@ -1,0 +1,38 @@
+<%- include('header') %>
+
+<div class="w-full flex-grow">
+  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-8">
+      <h2 class="text-2xl font-bold mb-4">Create New Folder</h2>
+
+      <form action="/create-folder" method="POST">
+        <div class="mb-6">
+          <label
+            for="folderName"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Folder Name</label
+          >
+          <input
+            type="text"
+            id="folderName"
+            name="folderName"
+            required
+            placeholder="Enter folder name"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <div class="flex items-center justify-center">
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out"
+          >
+            Create Folder
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

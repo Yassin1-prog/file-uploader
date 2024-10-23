@@ -42,3 +42,10 @@ model File {
   user        User     @relation(fields: [userId], references: [id])
   fileUrl     String   // URL if stored in cloud storage
 }
+
+model Session {
+  id           String   @id @default(uuid()) // Prisma Session Store uses uuid for session ids
+  sid          String   @unique
+  data         String
+  expiresAt    DateTime
+}
