@@ -38,6 +38,12 @@ const getFolderById = async (id) => {
   });
 };
 
+const getFolder = async (name) => {
+  return await prisma.folder.findFirst({
+    where: { name },
+  });
+};
+
 // Read (get) all folders for a specific user
 const getFoldersByUserId = async (userId) => {
   return await prisma.folder.findMany({
@@ -46,10 +52,12 @@ const getFoldersByUserId = async (userId) => {
 };
 
 // Update a folder by ID
-const updateFolder = async (id, updatedData) => {
+const updateFolder = async (id, newName) => {
   return await prisma.folder.update({
     where: { id },
-    data: updatedData,
+    data: {
+      name: newName,
+    },
   });
 };
 
@@ -94,6 +102,12 @@ const getFilesByFolderId = async (folderId) => {
   });
 };
 
+const getFilesWithNoFolder = async () => {
+  return await prisma.file.findMany({
+    where: { folderId: null },
+  });
+};
+
 // Delete a file by ID
 const deleteFile = async (id) => {
   return await prisma.file.delete({
@@ -106,6 +120,7 @@ module.exports = {
   getUserById,
   addUser,
   createFolder,
+  getFolder,
   getFolderById,
   getFoldersByUserId,
   updateFolder,
@@ -114,5 +129,6 @@ module.exports = {
   getFileById,
   getFilesByUserId,
   getFilesByFolderId,
+  getFilesWithNoFolder,
   deleteFile,
 };

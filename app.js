@@ -12,6 +12,8 @@ const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 
 const signupController = require("./controllers/signupController");
+const fileController = require("./controllers/fileController");
+const folderController = require("./controllers/folderController");
 
 const app = express();
 const assetsPath = path.join(__dirname, "public");
@@ -115,6 +117,15 @@ app.post(
   })
 );
 
+app.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
 // signup route
 
 app.get("/signup", async (req, res) => {
@@ -126,18 +137,29 @@ app.post("/signup", signupController.createUser);
 //homepage route
 
 app.get("/home", async (req, res) => {
-  res.render("home", { user: req.user });
+  const folders = await db.getFoldersByUserId(req.user.id);
+  const files = await db.getFilesWithNoFolder();
+  res.render("home", { user: req.user, folders: folders, files: files });
 });
 
 app.get("/newfolder", async (req, res) => {
   res.render("newfolder");
 });
 
-app.get("/upload", async (req, res) => {
-  res.render("upload");
+app.post("/newfolder", folderController.createFolder);
+
+app.get("/folder/edit/:id", async (req, res) => {
+  const folder = await db.getFolderById(Number(req.params.id));
+  res.render("updatefolder", { folder: folder });
 });
 
-app.post("/upload", upload.single("myFile"), (req, res) => {
+app.post("/folder/edit/:id", folderController.updateFolder);
+
+app.post("/folder/delete/:id", folderController.deleteFolder);
+
+app.get("/upload", fileController.createFileGet);
+
+app.post("/upload", upload.single("file"), (req, res) => {
   // Access file details via req.file
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
