@@ -14,9 +14,9 @@
             <% folders.forEach(function(folder) { %>
               <li class="p-4 hover:bg-gray-50">
                 <div class="flex items-center justify-between">
-                  <a href="/home" class="flex-grow">
+                  <a href="/folder/<%= folder.id %>/files" class="flex-grow">
                     <div class="flex items-center">
-                      <i class="fa-solid fa-folder mr-2"></i>
+                      <i class="fa-solid fa-folder mr-2 text-yellow-500"></i>
                       <span class="text-gray-700 hover:text-blue-600"><%= folder.name %></span>
                     </div>
                   </a>
@@ -52,12 +52,12 @@
             <ul class="divide-y divide-gray-200">
               <% files.forEach(function(file) { %>
                 <li class="p-4 hover:bg-gray-50">
-                  <a href="/file/<%= file._id %>" class="flex items-center">
-                    <i class="fa-solid fa-file"></i>
+                  <a href="/file/<%= file.id %>" class="flex items-center">
+                    <i class="fa-solid fa-file text-gray-500 group-hover:text-blue-500 transition-colors duration-150 mr-2"></i>
                     <div class="flex-grow">
-                      <span class="text-gray-700 hover:text-blue-600"><%= file.originalName %></span>
+                      <span class="text-gray-700 hover:text-blue-600"><%= file.name %></span>
                       <span class="text-sm text-gray-500 ml-2">
-                        <%= new Date(file.uploadDate).toLocaleDateString() %>
+                        <%= new Date(file.uploadTime).toLocaleDateString() %>
                       </span>
                     </div>
                   </a>

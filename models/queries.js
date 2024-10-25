@@ -54,7 +54,9 @@ const getFoldersByUserId = async (userId) => {
 // Update a folder by ID
 const updateFolder = async (id, newName) => {
   return await prisma.folder.update({
-    where: { id },
+    where: {
+      id: id,
+    },
     data: {
       name: newName,
     },
@@ -102,9 +104,9 @@ const getFilesByFolderId = async (folderId) => {
   });
 };
 
-const getFilesWithNoFolder = async () => {
+const getFilesWithNoFolder = async (userid) => {
   return await prisma.file.findMany({
-    where: { folderId: null },
+    where: { folderId: null, userId: userid },
   });
 };
 

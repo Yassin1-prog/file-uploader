@@ -51,7 +51,7 @@ exports.updateFolder = [
         folder: oldfolder,
       });
     }
-    await db.updateFolder(req.user.id, folder);
+    await db.updateFolder(Number(req.params.id), folder);
     res.redirect("/home");
   },
 ];
@@ -59,4 +59,10 @@ exports.updateFolder = [
 exports.deleteFolder = async (req, res) => {
   await db.deleteFolder(Number(req.params.id));
   res.redirect("/home");
+};
+
+exports.getFilesInFolder = async (req, res) => {
+  const folder = await db.getFolderById(Number(req.params.id));
+  const files = await db.getFilesByFolderId(Number(req.params.id));
+  res.render("folderfiles", { folder: folder, files: files });
 };

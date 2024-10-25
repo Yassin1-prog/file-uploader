@@ -5,29 +5,7 @@ exports.createFileGet = async (req, res) => {
   res.render("upload", { folders: folders });
 };
 
-exports.createFile = async (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded.");
-  }
-
-  const folderId = req.body.folderId;
-
-  const fileInfo = {
-    originalName: req.file.originalname,
-    filename: req.file.filename,
-    path: req.file.path,
-    size: req.file.size,
-    mimetype: req.file.mimetype,
-    folderId: folderId || null, // Store as null if no folder was selected
-    uploadDate: new Date(),
-  };
-
-  await db.createFile(
-    fileInfo.originalName,
-    fileInfo.size,
-    fileInfo.folderId,
-    req.user.id,
-    ""
-  );
-  res.redirect("/home");
+exports.fileGet = async (req, res) => {
+  const file = await db.getFileById(Number(req.params.id));
+  res.render("filedetails", { file: file });
 };

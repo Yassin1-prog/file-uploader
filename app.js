@@ -8,8 +8,10 @@ const LocalStrategy = require("passport-local").Strategy;
 const db = require("./models/queries");
 const multer = require("multer");
 const fs = require("fs");
+require("dotenv").config();
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
+const { createClient } = require("@supabase/supabase-js");
 
 const signupController = require("./controllers/signupController");
 const fileController = require("./controllers/fileController");
@@ -19,19 +21,14 @@ const app = express();
 const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Files will be stored in the 'uploads' directory
-    cb(null, "uploads");
-  },
-  filename: function (req, file, cb) {
-    // The file will be saved as its original name with a timestamp prefix to avoid conflicts
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+// will be using a cloud storage service, supabase in this case
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// Set up multer middleware to use the storage config
-const upload = multer({ storage: storage });
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Ensure 'uploads' directory exists
 const uploadDir = path.join(__dirname, "uploads");
@@ -138,7 +135,7 @@ app.post("/signup", signupController.createUser);
 
 app.get("/home", async (req, res) => {
   const folders = await db.getFoldersByUserId(req.user.id);
-  const files = await db.getFilesWithNoFolder();
+  const files = await db.getFilesWithNoFolder(req.user.id);
   res.render("home", { user: req.user, folders: folders, files: files });
 });
 
@@ -157,22 +154,51 @@ app.post("/folder/edit/:id", folderController.updateFolder);
 
 app.post("/folder/delete/:id", folderController.deleteFolder);
 
+app.get("/file/:id", fileController.fileGet);
+
+app.get("/folder/:id/files", folderController.getFilesInFolder);
+
 app.get("/upload", fileController.createFileGet);
 
-app.post("/upload", upload.single("file"), (req, res) => {
+app.post("/upload", upload.single("file"), async (req, res) => {
   // Access file details via req.file
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
   }
 
-  // File details
-  const fileInfo = {
-    filename: req.file.filename,
-    size: req.file.size,
-    path: req.file.path,
-  };
+  // IN SUBAPASE DASH I ACCIDENTALLY
+  //NAMED THE BUCKET UPLAODS
 
-  res.send(`File uploaded successfully: ${fileInfo.filename}`);
+  // Set file path and name in Supabase
+  const filePath = `uploads/${Date.now()}_${req.file.originalname}`;
+  const { data, error } = await supabase.storage
+    .from("uplaods")
+    .upload(filePath, req.file.buffer, {
+      contentType: req.file.mimetype,
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Supabase upload error:", error);
+    return res.status(500).json({ error: "File upload failed" });
+  }
+
+  //const { publicURL } = supabase.storage.from("uplaods").getPublicUrl(filePath); deprecated docs
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("uplaods").getPublicUrl(filePath);
+  const folderId = req.body.folderId;
+  const folderid = folderId ? Number(folderId) : null;
+
+  await db.createFile(
+    req.file.originalname,
+    req.file.size,
+    folderid,
+    req.user.id,
+    publicUrl
+  );
+
+  res.redirect("/home");
 });
 
 const PORT = 3000;
