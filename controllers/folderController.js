@@ -28,9 +28,13 @@ exports.createFolder = [
       });
     }
     await db.createFolder(folder, req.user.id);
-    res.redirect("/home");
+    res.redirect("/");
   },
 ];
+
+exports.newfolderGet = (req, res) => {
+  res.render("newfolder");
+};
 
 exports.updateFolder = [
   validateFolder,
@@ -52,13 +56,18 @@ exports.updateFolder = [
       });
     }
     await db.updateFolder(Number(req.params.id), folder);
-    res.redirect("/home");
+    res.redirect("/");
   },
 ];
 
+exports.updateFolderGet = async (req, res) => {
+  const folder = await db.getFolderById(Number(req.params.id));
+  res.render("updatefolder", { folder: folder });
+};
+
 exports.deleteFolder = async (req, res) => {
   await db.deleteFolder(Number(req.params.id));
-  res.redirect("/home");
+  res.redirect("/");
 };
 
 exports.getFilesInFolder = async (req, res) => {

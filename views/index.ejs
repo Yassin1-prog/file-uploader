@@ -1,5 +1,6 @@
 <%- include('header') %>
 
+<% if(!locals.user) { %>
 <div
   class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl mt-10 flex-grow"
 >
@@ -51,5 +52,80 @@
     </form>
   </div>
 </div>
+<% } else { %>
+  <div class="flex-grow">
+    <div class="text-2xl text-center text-teal-800">
+        Welcome Back <%= user.email %>
+      </div>
+    
+      <!-- Folders Section -->
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Your Folders</h2>
+        <% if (folders && folders.length > 0) { %>
+          <div class="bg-white rounded-lg shadow overflow-hidden">
+            <ul class="divide-y divide-gray-200">
+              <% folders.forEach(function(folder) { %>
+                <li class="p-4 hover:bg-gray-50">
+                  <div class="flex items-center justify-between">
+                    <a href="/folder/<%= folder.id %>/files" class="flex-grow">
+                      <div class="flex items-center">
+                        <i class="fa-solid fa-folder mr-2 text-yellow-500"></i>
+                        <span class="text-gray-700 hover:text-blue-600"><%= folder.name %></span>
+                      </div>
+                    </a>
+                    <div class="flex items-center space-x-2">
+                      <form action="/folder/edit/<%= folder.id %>" method="GET">
+                        <button type="submit"  class="text-sm bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600 transition duration-150">
+                          Edit
+                        </button>
+                      </form>
+                      <form action="folder/delete/<%= folder.id %>" method="POST">
+                        <button type="submit"  class="text-sm bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition duration-150">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } else { %>
+          <div class="text-center text-gray-500 py-4">
+            No folders created yet
+          </div>
+        <% } %>
+      </div>
+    
+      <!-- Unorganized Files Section -->
+      <div>
+          <h2 class="text-xl font-bold text-gray-700 mb-4">Unorganized Files</h2>
+          <% if (files && files.length > 0) { %>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+              <ul class="divide-y divide-gray-200">
+                <% files.forEach(function(file) { %>
+                  <li class="p-4 hover:bg-gray-50">
+                    <a href="/file/<%= file.id %>" class="flex items-center">
+                      <i class="fa-solid fa-file text-gray-500 group-hover:text-blue-500 transition-colors duration-150 mr-2"></i>
+                      <div class="flex-grow">
+                        <span class="text-gray-700 hover:text-blue-600"><%= file.name %></span>
+                        <span class="text-sm text-gray-500 ml-2">
+                          <%= new Date(file.uploadTime).toLocaleDateString() %>
+                        </span>
+                      </div>
+                    </a>
+                  </li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } else { %>
+            <div class="text-center text-gray-500 py-4">
+              No unorganized files
+            </div>
+          <% } %>
+        </div>
+    </div>
+  </div>
+<% } %>
 
 <%- include('footer') %>

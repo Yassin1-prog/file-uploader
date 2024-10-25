@@ -22,6 +22,10 @@ const validateSignup = [
     .withMessage("Passwords do not match"),
 ];
 
+exports.getSignUp = (req, res) => {
+  res.render("signup");
+};
+
 exports.createUser = [
   validateSignup,
   async (req, res, next) => {
