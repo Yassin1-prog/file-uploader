@@ -129,5 +129,6 @@ app.post(
   fileController.uploadFile
 );
 
+//for koyeb deployment config
 const PORT = 8000;
 app.listen(PORT, () => console.log(`Express app - listening on port ${PORT}!`));
